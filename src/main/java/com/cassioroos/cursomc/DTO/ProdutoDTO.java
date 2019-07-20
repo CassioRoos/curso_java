@@ -2,10 +2,6 @@ package com.cassioroos.cursomc.DTO;
 
 import java.io.Serializable;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 import com.cassioroos.cursomc.domain.Produto;
 
 import lombok.Data;

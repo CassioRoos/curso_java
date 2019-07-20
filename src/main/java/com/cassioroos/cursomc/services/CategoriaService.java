@@ -1,11 +1,8 @@
 package com.cassioroos.cursomc.services;
 
-import com.cassioroos.cursomc.DTO.CategoriaDTO;
-import com.cassioroos.cursomc.domain.Categoria;
-import com.cassioroos.cursomc.domain.Cliente;
-import com.cassioroos.cursomc.repositories.CategoriaRepository;
-import com.cassioroos.cursomc.services.exceptions.DataIntegrityException;
-import com.cassioroos.cursomc.services.exceptions.ObjectNotFountException;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -13,8 +10,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.cassioroos.cursomc.DTO.CategoriaDTO;
+import com.cassioroos.cursomc.domain.Categoria;
+import com.cassioroos.cursomc.repositories.CategoriaRepository;
+import com.cassioroos.cursomc.services.exceptions.DataIntegrityException;
+import com.cassioroos.cursomc.services.exceptions.ObjectNotFountException;
 
 @Service
 public class CategoriaService {
