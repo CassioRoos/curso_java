@@ -10,11 +10,9 @@ import org.hibernate.validator.constraints.Length;
 import com.cassioroos.cursomc.domain.Cliente;
 import com.cassioroos.cursomc.services.validation.ClienteUpdate;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 @ClienteUpdate
 public class ClienteDTO implements Serializable {
 	private static final long serialVersionUID = 1L;

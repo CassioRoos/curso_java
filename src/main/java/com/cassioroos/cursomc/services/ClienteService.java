@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,9 @@ public class ClienteService {
 	
 	@Autowired
 	private EnderecoRepository repoEndereco;
+	
+	@Autowired
+	private BCryptPasswordEncoder pe;
 
 	public Cliente find(Integer id) {
 		Optional<Cliente> obj = repo.findById(id);
@@ -74,12 +78,12 @@ public class ClienteService {
 	}
 
 	public Cliente fromDTO(ClienteDTO obj) {
-		return new Cliente(obj.getId(), obj.getNome(), obj.getEmail(), null, null);
+		return new Cliente(obj.getId(), obj.getNome(), obj.getEmail(), null, null, null);
 	}
 
 	public Cliente fromDTO(ClienteNewDTO obj) {
 		Cliente cli = new Cliente(null, obj.getNome(), obj.getEmail(), obj.getCpfOuCnpj(),
-				TipoCliente.toEnum(obj.getTipo()));
+				TipoCliente.toEnum(obj.getTipo()), pe.encode(obj.getSenha()));
 		Cidade cid = repoCidade.findById(obj.getCidadeid())
 				.orElseThrow(() -> new ObjectNotFountException("Cidade não encontrada! Código " + obj.getCidadeid()));
 		Endereco end = new Endereco(null, obj.getLogradouro(), obj.getNumero(), obj.getComplemento(), obj.getBairro(),
