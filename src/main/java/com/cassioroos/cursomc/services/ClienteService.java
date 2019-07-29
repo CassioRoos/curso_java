@@ -17,10 +17,13 @@ import com.cassioroos.cursomc.DTO.ClienteNewDTO;
 import com.cassioroos.cursomc.domain.Cidade;
 import com.cassioroos.cursomc.domain.Cliente;
 import com.cassioroos.cursomc.domain.Endereco;
+import com.cassioroos.cursomc.domain.enums.Perfil;
 import com.cassioroos.cursomc.domain.enums.TipoCliente;
 import com.cassioroos.cursomc.repositories.CidadeRepository;
 import com.cassioroos.cursomc.repositories.ClienteRepository;
 import com.cassioroos.cursomc.repositories.EnderecoRepository;
+import com.cassioroos.cursomc.security.UserSS;
+import com.cassioroos.cursomc.services.exceptions.AuthorizationException;
 import com.cassioroos.cursomc.services.exceptions.DataIntegrityException;
 import com.cassioroos.cursomc.services.exceptions.ObjectNotFountException;
 
@@ -40,6 +43,11 @@ public class ClienteService {
 	private BCryptPasswordEncoder pe;
 
 	public Cliente find(Integer id) {
+		UserSS user = UserService.authenticated();
+		if (user == null || !user.hasRole(Perfil.ADMIN) && !user.getId().equals(id)) {
+			throw new AuthorizationException("Acesso negado!");
+		}
+		
 		Optional<Cliente> obj = repo.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFountException(
 				"Objeto não encontrado! id : " + id + " tipo: " + Cliente.class.getName()));
@@ -64,7 +72,7 @@ public class ClienteService {
 	}
 
 	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
-		PageRequest pageRequest = new PageRequest(page, linesPerPage, Direction.valueOf(direction), orderBy);
+		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		return repo.findAll(pageRequest);
 	}
 
