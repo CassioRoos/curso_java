@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.cassioroos.cursomc.domain.Cliente;
 import com.cassioroos.cursomc.repositories.ClienteRepository;
-import com.cassioroos.cursomc.services.exceptions.ObjectNotFountException;
+import com.cassioroos.cursomc.services.exceptions.ObjectNotFoundException;
 
 @Service
 public class AuthService {
@@ -28,7 +28,7 @@ public class AuthService {
 	public void sendNewPassword(String email) {
 		Cliente cliente = clienteRepository.findByEmail(email);
 		if (cliente == null) {
-			throw new ObjectNotFountException("Objeto não encontrado");
+			throw new ObjectNotFoundException("Objeto não encontrado");
 		}
 		String newPass = newPassword();
 		cliente.setSenha(pe.encode(newPass));

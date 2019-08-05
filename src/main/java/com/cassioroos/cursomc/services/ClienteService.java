@@ -1,9 +1,12 @@
 package com.cassioroos.cursomc.services;
 
+import java.awt.image.BufferedImage;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,6 +14,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cassioroos.cursomc.DTO.ClienteDTO;
 import com.cassioroos.cursomc.DTO.ClienteNewDTO;
@@ -25,7 +29,7 @@ import com.cassioroos.cursomc.repositories.EnderecoRepository;
 import com.cassioroos.cursomc.security.UserSS;
 import com.cassioroos.cursomc.services.exceptions.AuthorizationException;
 import com.cassioroos.cursomc.services.exceptions.DataIntegrityException;
-import com.cassioroos.cursomc.services.exceptions.ObjectNotFountException;
+import com.cassioroos.cursomc.services.exceptions.ObjectNotFoundException;
 
 @Service
 public class ClienteService {
@@ -35,21 +39,30 @@ public class ClienteService {
 
 	@Autowired
 	private CidadeRepository repoCidade;
-	
+
 	@Autowired
 	private EnderecoRepository repoEndereco;
-	
+
 	@Autowired
 	private BCryptPasswordEncoder pe;
+
+	@Autowired
+	private S3Service s3Service;
+
+	@Autowired
+	private ImageService imageService;
+
+	@Value("${img.profile.size}")
+	private Integer size;
 
 	public Cliente find(Integer id) {
 		UserSS user = UserService.authenticated();
 		if (user == null || !user.hasRole(Perfil.ADMIN) && !user.getId().equals(id)) {
 			throw new AuthorizationException("Acesso negado!");
 		}
-		
+
 		Optional<Cliente> obj = repo.findById(id);
-		return obj.orElseThrow(() -> new ObjectNotFountException(
+		return obj.orElseThrow(() -> new ObjectNotFoundException(
 				"Objeto não encontrado! id : " + id + " tipo: " + Cliente.class.getName()));
 	}
 
@@ -63,6 +76,18 @@ public class ClienteService {
 
 	public List<Cliente> findAll() {
 		return repo.findAll();
+	}
+
+	public Cliente findByEmail(String email) {
+		UserSS user = UserService.authenticatedEmailUser(email);
+
+		Cliente cli = findByEmail(email);
+		if (cli == null) {
+			throw new ObjectNotFoundException(
+					"Objeto não encontrado: " + user.getId() + " tipo " + Cliente.class.getName());
+		}
+
+		return cli;
 	}
 
 	public Cliente update(Cliente obj) {
@@ -93,16 +118,16 @@ public class ClienteService {
 		Cliente cli = new Cliente(null, obj.getNome(), obj.getEmail(), obj.getCpfOuCnpj(),
 				TipoCliente.toEnum(obj.getTipo()), pe.encode(obj.getSenha()));
 		Cidade cid = repoCidade.findById(obj.getCidadeid())
-				.orElseThrow(() -> new ObjectNotFountException("Cidade não encontrada! Código " + obj.getCidadeid()));
+				.orElseThrow(() -> new ObjectNotFoundException("Cidade não encontrada! Código " + obj.getCidadeid()));
 		Endereco end = new Endereco(null, obj.getLogradouro(), obj.getNumero(), obj.getComplemento(), obj.getBairro(),
 				obj.getCep(), cli, cid);
 		cli.getEnderecos().add(end);
 		cli.getTelefones().add(obj.getTelefone1());
-		
+
 		if (obj.getTelefone2() != null) {
 			cli.getTelefones().add(obj.getTelefone2());
 		}
-		
+
 		if (obj.getTelefone3() != null) {
 			cli.getTelefones().add(obj.getTelefone3());
 		}
@@ -113,4 +138,16 @@ public class ClienteService {
 		newObj.setNome(obj.getNome());
 		newObj.setEmail(obj.getEmail());
 	}
+
+	public URI uploadProfilePicture(MultipartFile multipartFile) {
+		UserSS user = UserService.authenticatedUser();
+
+		BufferedImage jpgImage = imageService.getJpgImageFromFile(multipartFile);
+		String fileName = "profilepicture" + user.getId() + ".jpg";
+		jpgImage = imageService.cropSquare(jpgImage);
+		jpgImage = imageService.resize(jpgImage, size);
+
+		return s3Service.uploadFile(imageService.getInputStream(jpgImage, "jpg"), "image", fileName);
+	}
+
 }

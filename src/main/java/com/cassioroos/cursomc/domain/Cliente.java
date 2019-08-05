@@ -22,7 +22,6 @@ import com.cassioroos.cursomc.domain.enums.Perfil;
 import com.cassioroos.cursomc.domain.enums.TipoCliente;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
 @Entity
 public class Cliente implements Serializable {
 
@@ -36,7 +35,7 @@ public class Cliente implements Serializable {
 	private String email;
 	private String cpfOuCnpj;
 	private Integer tipo;
-	
+
 	@JsonIgnore
 	private String senha;
 
@@ -47,11 +46,11 @@ public class Cliente implements Serializable {
 	public void setSenha(String senha) {
 		this.senha = senha;
 	}
-	
-	public Set<Perfil> getPerfis(){
+
+	public Set<Perfil> getPerfis() {
 		return perfis.stream().map(x -> Perfil.toEnum(x)).collect(Collectors.toSet());
 	}
-	
+
 	public void addPerfil(Perfil perfil) {
 		perfis.add(perfil.getCod());
 	}
@@ -66,9 +65,9 @@ public class Cliente implements Serializable {
 	@JsonIgnore
 	@OneToMany(mappedBy = "cliente")
 	private List<Pedido> pedidos = new ArrayList<>();
-	
+
 	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(name="perfis")
+	@CollectionTable(name = "perfis")
 	private Set<Integer> perfis = new HashSet<Integer>();
 
 	public Cliente() {

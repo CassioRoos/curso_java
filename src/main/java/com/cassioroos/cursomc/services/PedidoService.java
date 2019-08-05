@@ -20,7 +20,7 @@ import com.cassioroos.cursomc.repositories.PagamentoRepository;
 import com.cassioroos.cursomc.repositories.PedidoRepository;
 import com.cassioroos.cursomc.security.UserSS;
 import com.cassioroos.cursomc.services.exceptions.AuthorizationException;
-import com.cassioroos.cursomc.services.exceptions.ObjectNotFountException;
+import com.cassioroos.cursomc.services.exceptions.ObjectNotFoundException;
 
 @Service
 public class PedidoService {
@@ -48,7 +48,7 @@ public class PedidoService {
 	
 	public Pedido find(Integer id) {
 		Optional<Pedido> obj = repo.findById(id);
-		return obj.orElseThrow(() -> new ObjectNotFountException(
+		return obj.orElseThrow(() -> new ObjectNotFoundException(
 				"Objeto não encontrado! id : " + id + " tipo: " + Pedido.class.getName()));
 	}
 	

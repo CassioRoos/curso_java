@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cassioroos.cursomc.DTO.EmailDTO;
-import com.cassioroos.cursomc.domain.Pedido;
 import com.cassioroos.cursomc.security.JWTUtil;
 import com.cassioroos.cursomc.security.UserSS;
 import com.cassioroos.cursomc.services.AuthService;
@@ -23,7 +22,7 @@ public class AuthResource {
 
 	@Autowired
 	private JWTUtil jwtUtil;
-	
+
 	@Autowired
 	private AuthService authService;
 
@@ -32,9 +31,10 @@ public class AuthResource {
 		UserSS user = UserService.authenticated();
 		String token = jwtUtil.generateToken(user.getUsername());
 		response.addHeader("Authorization", "Bearer " + token);
+		response.addHeader("access-control-expose-headers", "Authorization");
 		return ResponseEntity.noContent().build();
 	}
-	
+
 	@PostMapping(value = "forgot")
 	public ResponseEntity<Void> forgot(@Valid @RequestBody EmailDTO obj) {
 		authService.sendNewPassword(obj.getEmail());

@@ -13,7 +13,7 @@ import com.cassioroos.cursomc.domain.Categoria;
 import com.cassioroos.cursomc.domain.Produto;
 import com.cassioroos.cursomc.repositories.CategoriaRepository;
 import com.cassioroos.cursomc.repositories.ProdutoRepository;
-import com.cassioroos.cursomc.services.exceptions.ObjectNotFountException;
+import com.cassioroos.cursomc.services.exceptions.ObjectNotFoundException;
 
 @Service
 public class ProdutoService {
@@ -26,7 +26,7 @@ public class ProdutoService {
 
 	public Produto find(Integer id) {
 		Optional<Produto> obj = repo.findById(id);
-		return obj.orElseThrow(() -> new ObjectNotFountException(
+		return obj.orElseThrow(() -> new ObjectNotFoundException(
 				"Objeto não encontrado! id : " + id + " tipo: " + Produto.class.getName()));
 	}
 	

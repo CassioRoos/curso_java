@@ -14,7 +14,7 @@ import com.cassioroos.cursomc.DTO.CategoriaDTO;
 import com.cassioroos.cursomc.domain.Categoria;
 import com.cassioroos.cursomc.repositories.CategoriaRepository;
 import com.cassioroos.cursomc.services.exceptions.DataIntegrityException;
-import com.cassioroos.cursomc.services.exceptions.ObjectNotFountException;
+import com.cassioroos.cursomc.services.exceptions.ObjectNotFoundException;
 
 @Service
 public class CategoriaService {
@@ -24,7 +24,7 @@ public class CategoriaService {
 
     public Categoria find(Integer id) {
         Optional<Categoria> obj = repo.findById(id);
-        return obj.orElseThrow(() -> new ObjectNotFountException(
+        return obj.orElseThrow(() -> new ObjectNotFoundException(
                 "Objeto não encontrado! id : " + id + " tipo: " + Categoria.class.getName()));
     }
 
